@@ -22,6 +22,20 @@
             overflow: hidden;
         }
 
+        /* EDITOR SCREEN */
+        #editor-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #editor-screen.hidden {
+            display: none;
+        }
+
         .editor {
             width: 90%;
             max-width: 800px;
@@ -46,6 +60,83 @@
             opacity: 0.2;
         }
 
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 48px;
+            font-family: 'Georgia', serif;
+            color: #333;
+            font-weight: normal;
+            letter-spacing: -1px;
+        }
+
+        .timer.warning {
+            color: #ff4444;
+        }
+
+        /* COMPLETION SCREEN */
+        #complete-screen {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        #complete-screen.visible {
+            display: flex;
+        }
+
+        .message {
+            font-size: 24px;
+            color: #666;
+            text-align: center;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            font-size: 16px;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 18px 48px;
+            border: 1px solid #666;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-block;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1a1a1a;
+            border-color: #999;
+        }
+
+        .btn.affiliate {
+            border-color: #00cc6a;
+            color: #00cc6a;
+            font-size: 14px;
+            padding: 14px 36px;
+        }
+
+        .btn.affiliate:hover {
+            background: rgba(0, 204, 106, 0.1);
+            border-color: #00ff88;
+        }
+
+        /* BLOG LINK */
         .blog-link {
             position: fixed;
             bottom: 20px;
@@ -74,37 +165,114 @@
     </style>
 </head>
 <body>
-    <textarea class="editor" id="editor" placeholder="Start typing..." autofocus></textarea>
+    <!-- EDITOR SCREEN -->
+    <div id="editor-screen">
+        <div class="timer" id="timer">5:00</div>
+        <textarea class="editor" id="editor" placeholder="Start typing..." autofocus></textarea>
+    </div>
 
+    <!-- COMPLETION SCREEN -->
+    <div id="complete-screen">
+        <div class="message">Session complete</div>
+        <div class="actions">
+            <button class="btn" id="downloadBtn">Download (.txt)</button>
+            <a href="https://www.wealthyaffiliate.com?a_aid=9426920e" target="_blank" class="btn affiliate">Get Paid to Write</a>
+        </div>
+    </div>
+
+    <!-- BLOG LINK (visible on both screens) -->
     <div class="blog-link">
         <a href="https://rossleese.com" target="_blank" class="blog-btn">blog</a>
     </div>
 
     <script>
+        const editorScreen = document.getElementById('editor-screen');
+        const completeScreen = document.getElementById('complete-screen');
         const editor = document.getElementById('editor');
+        const timerDisplay = document.getElementById('timer');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
         let warningTimeout;
         let deleteTimeout;
+        let sessionTime = 300; // 5 minutes in seconds
+        let timeRemaining = sessionTime;
+        let timerInterval;
+        let hasTyped = false;
+        let savedText = '';
+
+        // Start session timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Warning color in last minute
+                if (timeRemaining <= 60) {
+                    timerDisplay.classList.add('warning');
+                }
+                
+                // Session ended
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    sessionComplete();
+                }
+            }, 1000);
+        }
+
+        function sessionComplete() {
+            savedText = editor.value;
+            editorScreen.classList.add('hidden');
+            completeScreen.classList.add('visible');
+            
+            // Disable download if no text
+            if (!savedText || !savedText.trim()) {
+                downloadBtn.disabled = true;
+                downloadBtn.style.opacity = '0.3';
+                downloadBtn.style.cursor = 'not-allowed';
+            }
+        }
 
         editor.addEventListener('input', handleKeystroke);
         editor.addEventListener('keydown', handleKeystroke);
 
         function handleKeystroke() {
+            if (!hasTyped) {
+                hasTyped = true;
+                startTimer();
+            }
+            
             clearTimeout(warningTimeout);
             clearTimeout(deleteTimeout);
             
             editor.classList.remove('fading');
             
-            // Fade warning after 10 seconds of inactivity
+            // Fade warning after 3 seconds of inactivity
             warningTimeout = setTimeout(() => {
                 editor.classList.add('fading');
-            }, 10000);
+            }, 3000);
             
-            // Delete everything after 30 seconds of inactivity
+            // Delete everything after 10 seconds of inactivity
             deleteTimeout = setTimeout(() => {
                 editor.value = '';
                 editor.classList.remove('fading');
-            }, 30000);
+            }, 10000);
         }
+
+        // Download functionality
+        downloadBtn.addEventListener('click', () => {
+            if (!savedText || !savedText.trim()) return;
+            
+            const blob = new Blob([savedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'typpe-' + Date.now() + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
     </script>
 </body>
 </html>
