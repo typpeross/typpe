@@ -22,6 +22,71 @@
             overflow: hidden;
         }
 
+        /* SETTINGS SCREEN */
+        #settings-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        #settings-screen.hidden {
+            display: none;
+        }
+
+        .settings-title {
+            font-size: 32px;
+            color: #666;
+            text-align: center;
+            font-weight: normal;
+        }
+
+        .settings-logo {
+            font-size: 72px;
+            color: #333;
+            text-align: center;
+            font-weight: normal;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .time-options {
+            display: flex;
+            gap: 20px;
+        }
+
+        .time-btn {
+            font-size: 48px;
+            font-family: 'Georgia', serif;
+            color: #666;
+            background: transparent;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 40px 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-btn:hover {
+            border-color: #666;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .time-options {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .time-btn {
+                font-size: 36px;
+                padding: 30px 50px;
+            }
+        }
+
         /* EDITOR SCREEN */
         #editor-screen {
             width: 100%;
@@ -165,8 +230,19 @@
     </style>
 </head>
 <body>
+    <!-- SETTINGS SCREEN -->
+    <div id="settings-screen">
+        <div class="settings-logo">TYPPE</div>
+        <div class="settings-title">How long do you want to write?</div>
+        <div class="time-options">
+            <button class="time-btn" onclick="startSession(2)">2 min</button>
+            <button class="time-btn" onclick="startSession(5)">5 min</button>
+            <button class="time-btn" onclick="startSession(10)">10 min</button>
+        </div>
+    </div>
+
     <!-- EDITOR SCREEN -->
-    <div id="editor-screen">
+    <div id="editor-screen" class="hidden">
         <div class="timer" id="timer">5:00</div>
         <textarea class="editor" id="editor" placeholder="Start typing..." autofocus></textarea>
     </div>
@@ -186,6 +262,7 @@
     </div>
 
     <script>
+        const settingsScreen = document.getElementById('settings-screen');
         const editorScreen = document.getElementById('editor-screen');
         const completeScreen = document.getElementById('complete-screen');
         const editor = document.getElementById('editor');
@@ -194,11 +271,27 @@
         
         let warningTimeout;
         let deleteTimeout;
-        let sessionTime = 300; // 5 minutes in seconds
+        let sessionTime = 300; // Will be set by user choice
         let timeRemaining = sessionTime;
         let timerInterval;
         let hasTyped = false;
         let savedText = '';
+
+        // Start session with chosen length
+        function startSession(minutes) {
+            sessionTime = minutes * 60;
+            timeRemaining = sessionTime;
+            
+            // Update timer display
+            timerDisplay.textContent = `${minutes}:00`;
+            
+            // Hide settings, show editor
+            settingsScreen.classList.add('hidden');
+            editorScreen.classList.remove('hidden');
+            
+            // Focus editor
+            setTimeout(() => editor.focus(), 100);
+        }
 
         // Start session timer
         function startTimer() {
