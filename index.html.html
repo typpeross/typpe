@@ -1,371 +1,1517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>typpe</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>typpe — finally write that thing you've been avoiding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0a0a0a;
+  --deep:#121212;
+  --dark:#1a1a1a;
+  --slate:#2a2a2a;
+  --mid:#6a6a6a;
+  --light:#9a9a9a;
+  --off:#c8c8c8;
+  --white:#f5f5f5;
+  --red:#ff4444;
+  --red-dim:rgba(255,68,68,0.1);
+  --bebas:'Bebas Neue',cursive;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
 
-        body {
-            font-family: 'Georgia', serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--sans);overflow-x:hidden}
 
-        /* SETTINGS SCREEN */
-        #settings-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-        }
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+}
 
-        #settings-screen.hidden {
-            display: none;
-        }
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes letter-fade{
+  0%{opacity:1}
+  100%{opacity:0}
+}
 
-        .settings-title {
-            font-size: 32px;
-            color: #666;
-            text-align: center;
-            font-weight: normal;
-        }
+/* NAV */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 clamp(20px,5vw,64px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(10,10,10,.95);backdrop-filter:blur(24px);
+}
+.nav-inner{
+  max-width:1400px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:68px;
+}
+.nav-logo{
+  font-family:var(--bebas);font-size:30px;
+  color:var(--white);text-decoration:none;
+  letter-spacing:.04em;
+}
+.nav-logo .fade-p{opacity:.25}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{
+  font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--mid);
+  text-decoration:none;transition:color .2s;
+}
+.nav-links a:hover{color:var(--white)}
+.nav-btn{
+  background:var(--red);color:var(--white);
+  border:none;cursor:pointer;
+  font-family:var(--bebas);font-size:17px);
+  letter-spacing:.14em;padding:10px 24px;
+  transition:background .2s;
+}
+.nav-btn:hover{background:#c42516}
+@media(max-width:720px){.nav-links{display:none}}
 
-        .settings-logo {
-            font-size: 72px;
-            color: #333;
-            text-align: center;
-            font-weight: normal;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:100px clamp(20px,5vw,60px) 60px;
+  position:relative;
+}
 
-        .time-options {
-            display: flex;
-            gap: 20px;
-        }
+.hero-tag{
+  font-family:var(--mono);font-size:12px;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--mid);margin-bottom:32px;
+  animation:up .7s .1s ease both;
+}
 
-        .time-btn {
-            font-size: 48px;
-            font-family: 'Georgia', serif;
-            color: #666;
-            background: transparent;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 40px 60px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+.hero-title{
+  font-family:var(--bebas);
+  font-size:clamp(44px,9vw,96px);
+  line-height:.9;color:var(--white);
+  letter-spacing:.02em;margin-bottom:24px;
+  animation:up .9s .2s cubic-bezier(.16,1,.3,1) both;
+  max-width:900px;
+}
+.hero-title .red{color:var(--red)}
 
-        .time-btn:hover {
-            border-color: #666;
-            color: #999;
-        }
+.hero-sub{
+  font-size:clamp(17px,2.5vw,22px);
+  color:var(--off);line-height:1.5;
+  max-width:640px;margin:0 auto 40px;
+  animation:up .7s .35s ease both;
+  font-weight:400;
+}
 
-        @media (max-width: 768px) {
-            .time-options {
-                flex-direction: column;
-                gap: 16px;
-            }
-            
-            .time-btn {
-                font-size: 36px;
-                padding: 30px 50px;
-            }
-        }
+.hero-btns{
+  display:flex;gap:12px;justify-content:center;
+  flex-wrap:wrap;margin-bottom:64px;
+  animation:up .7s .45s ease both;
+}
+.btn-primary{
+  padding:18px 44px;background:var(--red);
+  color:var(--white);border:none;cursor:pointer;
+  font-family:var(--bebas);font-size:20px;
+  letter-spacing:.1em;transition:all .2s;
+}
+.btn-primary:hover{
+  background:#c42516;
+  transform:translateY(-2px);
+}
+.btn-secondary{
+  padding:18px 36px;background:transparent;
+  border:1px solid var(--slate);color:var(--off);
+  cursor:pointer;font-family:var(--mono);
+  font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;transition:all .2s;
+  text-decoration:none;display:inline-flex;
+  align-items:center;
+}
+.btn-secondary:hover{
+  border-color:var(--red);color:var(--red);
+}
 
-        /* EDITOR SCREEN */
-        #editor-screen {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
+/* LIVE DEMO */
+.live-demo{
+  width:100%;max-width:800px;
+  border:1px solid rgba(255,68,68,.2);
+  background:rgba(255,68,68,.02);
+  border-radius:8px;overflow:hidden;
+  animation:up .9s .55s ease both;
+  position:relative;
+}
+.live-demo::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:2px;background:linear-gradient(to right,transparent,var(--red),transparent);
+  animation:pulse 3s ease infinite;
+}
 
-        #editor-screen.hidden {
-            display: none;
-        }
+.ld-header{
+  padding:16px 24px;background:rgba(10,10,10,.6);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ld-title{
+  font-family:var(--bebas);font-size:16px;
+  color:var(--white);letter-spacing:.08em;
+}
+.ld-live{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 12px;background:var(--red-dim);
+  border:1px solid rgba(255,68,68,.2);
+  border-radius:12px;
+}
+.ld-live-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--red);animation:pulse 2s ease infinite;
+}
+.ld-live-text{
+  font-family:var(--mono);font-size:10px;
+  font-weight:500;color:var(--red);
+  letter-spacing:.08em;text-transform:uppercase;
+}
 
-        .editor {
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #e0e0e0;
-            font-size: 20px;
-            line-height: 1.8;
-            font-family: 'Georgia', serif;
-            resize: none;
-            transition: opacity 0.5s ease;
-            padding: 40px;
-        }
+.ld-body{
+  padding:32px 28px;min-height:240px;
+  position:relative;
+}
 
-        .editor::placeholder {
-            color: #333;
-        }
+.demo-instruction{
+  text-align:center;color:var(--mid);
+  font-family:var(--mono);font-size:13px;
+  padding:60px 20px;
+}
 
-        .editor.fading {
-            opacity: 0.2;
-        }
+.demo-text{
+  font-size:18px;line-height:1.8;
+  color:var(--white);font-family:var(--sans);
+  min-height:180px;
+}
+.demo-text span.fading-letter{
+  animation:letter-fade 0.8s ease forwards;
+}
 
-        .timer {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 48px;
-            font-family: 'Georgia', serif;
-            color: #333;
-            font-weight: normal;
-            letter-spacing: -1px;
-        }
+.cursor{
+  display:inline-block;
+  width:2px;height:22px;
+  background:var(--red);
+  margin-left:2px;
+  animation:blink 1s infinite;
+  vertical-align:text-bottom;
+}
 
-        .timer.warning {
-            color: #ff4444;
-        }
+.demo-warning{
+  position:absolute;bottom:20px;left:50%;
+  transform:translateX(-50%);
+  font-family:var(--mono);font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--red);background:var(--red-dim);
+  padding:8px 16px;border-radius:16px;
+  border:1px solid rgba(255,68,68,.2);
+  white-space:nowrap;
+  opacity:0;transition:opacity .3s;
+}
+.demo-warning.show{opacity:1}
 
-        /* COMPLETION SCREEN */
-        #complete-screen {
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-        }
+/* USE CASES */
+.uses-sec{
+  max-width:1200px;margin:0 auto;
+  padding:clamp(80px,12vw,120px) clamp(20px,5vw,64px);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.sec-header{
+  max-width:680px;margin:0 auto 56px;
+  text-align:center;
+}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--red);margin-bottom:16px;
+}
+.sec-title{
+  font-family:var(--bebas);
+  font-size:clamp(36px,6vw,64px);
+  line-height:.95;color:var(--white);
+  letter-spacing:.02em;margin-bottom:16px;
+}
+.sec-body{
+  font-size:17px;line-height:1.7;
+  color:var(--off);font-weight:400;
+}
 
-        #complete-screen.visible {
-            display: flex;
-        }
+.uses-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+@media(max-width:860px){.uses-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.uses-grid{grid-template-columns:1fr}}
 
-        .message {
-            font-size: 24px;
-            color: #666;
-            text-align: center;
-        }
+.use-card{
+  background:var(--deep);
+  border:1px solid rgba(255,255,255,.06);
+  padding:28px 24px;
+  transition:all .3s;
+}
+.use-card:hover{
+  border-color:rgba(255,68,68,.3);
+  transform:translateY(-4px);
+}
+.uc-icon{
+  font-size:36px;margin-bottom:14px;
+}
+.uc-title{
+  font-family:var(--bebas);font-size:20px;
+  color:var(--white);margin-bottom:8px;
+  letter-spacing:.05em;
+}
+.uc-body{
+  font-size:14px;line-height:1.7;
+  color:var(--light);
+}
 
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            align-items: center;
-        }
+/* HOW IT WORKS */
+.how-sec{
+  background:var(--deep);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(80px,12vw,120px) clamp(20px,5vw,64px);
+}
+.how-steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:32px;margin-top:56px;max-width:1200px;
+  margin-left:auto;margin-right:auto;
+}
+@media(max-width:860px){.how-steps{grid-template-columns:1fr}}
 
-        .btn {
-            font-size: 16px;
-            color: #e0e0e0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-decoration: none;
-            padding: 18px 48px;
-            border: 1px solid #666;
-            border-radius: 4px;
-            transition: all 0.2s;
-            display: inline-block;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: transparent;
-            cursor: pointer;
-        }
+.how-step{
+  background:var(--black);
+  border:1px solid rgba(255,255,255,.06);
+  padding:32px 28px;
+  position:relative;
+  transition:all .3s;
+}
+.how-step::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:var(--red);opacity:0;
+  transition:opacity .3s;
+}
+.how-step:hover{border-color:rgba(255,68,68,.2)}
+.how-step:hover::before{opacity:1}
 
-        .btn:hover {
-            background: #1a1a1a;
-            border-color: #999;
-        }
+.hs-num{
+  font-family:var(--bebas);font-size:64px;
+  color:rgba(255,68,68,.15);line-height:1;
+  margin-bottom:16px;
+}
+.hs-title{
+  font-family:var(--bebas);font-size:22px;
+  color:var(--white);margin-bottom:10px;
+  letter-spacing:.05em;
+}
+.hs-body{
+  font-size:15px;line-height:1.7;
+  color:var(--light);
+}
 
-        .btn.affiliate {
-            border-color: #00cc6a;
-            color: #00cc6a;
-            font-size: 14px;
-            padding: 14px 36px;
-        }
+/* TESTIMONIALS */
+.test-sec{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(80px,12vw,120px) clamp(20px,5vw,64px);
+}
+.test-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:24px;margin-top:56px;max-width:1200px;
+  margin-left:auto;margin-right:auto;
+}
+@media(max-width:960px){.test-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.test-grid{grid-template-columns:1fr}}
 
-        .btn.affiliate:hover {
-            background: rgba(0, 204, 106, 0.1);
-            border-color: #00ff88;
-        }
+.test-card{
+  background:var(--deep);
+  border:1px solid rgba(255,255,255,.06);
+  padding:28px 24px;
+  display:flex;flex-direction:column;
+  gap:20px;transition:all .3s;
+}
+.test-card:hover{
+  border-color:rgba(255,68,68,.2);
+  transform:translateY(-4px);
+}
 
-        /* BLOG LINK */
-        .blog-link {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+.tc-quote{
+  font-size:15px;line-height:1.7;
+  color:var(--off);font-style:italic;
+  flex:1;
+}
+.tc-quote::before{
+  content:'"';font-family:var(--bebas);
+  font-size:48px;color:var(--red);
+  display:block;line-height:.7;
+  margin-bottom:12px;font-style:normal;
+}
 
-        .blog-btn {
-            font-size: 12px;
-            color: #666;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            text-decoration: none;
-            padding: 8px 16px;
-            border: 1px solid #333;
-            border-radius: 4px;
-            transition: all 0.2s;
-            display: inline-block;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+.tc-author{
+  display:flex;align-items:center;
+  gap:12px;
+}
+.tc-avatar{
+  width:40px;height:40px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--red),#ff6666);
+  display:flex;align-items:center;
+  justify-content:center;
+  font-family:var(--bebas);font-size:16px;
+  color:var(--white);flex-shrink:0;
+}
+.tc-name{
+  font-family:var(--bebas);font-size:15px;
+  color:var(--white);letter-spacing:.05em;
+}
+.tc-context{
+  font-size:12px;color:var(--mid);
+}
 
-        .blog-btn:hover {
-            color: #e0e0e0;
-            border-color: #666;
-        }
-    </style>
+/* CTA */
+.cta-sec{
+  background:var(--deep);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(100px,14vw,160px) clamp(20px,5vw,60px);
+  text-align:center;
+}
+.cta-small{
+  font-family:var(--mono);font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mid);margin-top:20px;
+}
+
+/* FOOTER */
+.footer{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:48px clamp(20px,5vw,64px);
+}
+.footer-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;justify-content:space-between;
+  flex-wrap:wrap;gap:40px;
+}
+.footer-col h4{
+  font-family:var(--bebas);font-size:14px;
+  color:var(--white);margin-bottom:16px;
+  letter-spacing:.08em;
+}
+.footer-col ul{
+  list-style:none;display:flex;
+  flex-direction:column;gap:10px;
+}
+.footer-col a{
+  font-size:13px;color:var(--mid);
+  text-decoration:none;transition:color .2s;
+}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{
+  max-width:1200px;margin:32px auto 0;
+  padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.06);
+  text-align:center;font-size:12px;
+  color:var(--mid);
+}
+
+.rev{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease}
+.rev.vis{opacity:1;transform:translateY(0)}
+
+/* APP LAYER */
+#app-layer{
+  position:fixed;inset:0;z-index:1000;
+  background:var(--black);
+  display:none;
+}
+#app-layer.open{display:block}
+
+.scr{
+  position:absolute;inset:0;
+  display:none;
+}
+.scr.on{display:flex}
+
+/* SETTINGS SCREEN */
+#scr-settings{
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+
+.settings-panel{
+  width:100%;max-width:600px;
+  background:var(--deep);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.sp-header{
+  padding:20px 24px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;
+  justify-content:space-between;
+}
+
+.sp-logo{
+  font-family:var(--bebas);
+  font-size:28px;color:var(--white);
+  letter-spacing:.04em;
+}
+
+.btn-close{
+  background:transparent;
+  border:none;color:var(--mid);
+  font-size:28px;cursor:pointer;
+  width:40px;height:40px;
+  display:flex;align-items:center;
+  justify-content:center;
+  transition:color .2s;
+}
+.btn-close:hover{color:var(--white)}
+
+.sp-body{
+  padding:48px 32px;
+}
+
+.sp-title{
+  font-family:var(--bebas);
+  font-size:32px;color:var(--white);
+  letter-spacing:.05em;margin-bottom:8px;
+}
+
+.sp-sub{
+  font-size:15px;color:var(--off);
+  margin-bottom:40px;
+}
+
+.setting-group{
+  margin-bottom:36px;
+}
+
+.setting-label{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--mid);
+  display:block;margin-bottom:12px;
+}
+
+.setting-options{
+  display:flex;gap:10px;
+  margin-bottom:8px;
+}
+
+.setting-btn{
+  flex:1;padding:14px;
+  background:transparent;
+  border:1px solid var(--slate);
+  color:var(--off);
+  font-family:var(--mono);
+  font-size:13px;letter-spacing:.08em;
+  cursor:pointer;transition:all .2s;
+}
+.setting-btn:hover{
+  border-color:var(--mid);
+  color:var(--white);
+}
+.setting-btn.active{
+  background:var(--red);
+  border-color:var(--red);
+  color:var(--white);
+}
+
+.setting-help{
+  font-size:12px;color:var(--light);
+  font-style:italic;
+}
+
+.btn-start-writing{
+  width:100%;padding:18px;
+  background:var(--red);
+  color:var(--white);
+  border:none;cursor:pointer;
+  font-family:var(--bebas);
+  font-size:22px;letter-spacing:.1em;
+  transition:all .2s;
+  margin-top:20px;
+}
+.btn-start-writing:hover{
+  background:#c42516;
+  transform:translateY(-2px);
+}
+
+/* EDITOR SCREEN */
+#scr-editor{
+  flex-direction:column;
+}
+
+.editor-container{
+  display:flex;flex-direction:column;
+  height:100%;
+}
+
+.editor-header{
+  padding:16px 24px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+
+.eh-logo{
+  font-family:var(--bebas);
+  font-size:24px;color:var(--white);
+  letter-spacing:.04em;
+}
+
+.eh-status{
+  display:flex;align-items:center;
+  gap:24px;
+}
+
+.status-indicator{
+  display:flex;align-items:center;
+  gap:8px;padding:6px 14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
+}
+
+.si-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--green);
+  animation:pulse 2s ease infinite;
+}
+.si-dot.warning{
+  background:var(--red);
+}
+
+.si-text{
+  font-family:var(--mono);
+  font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--off);
+}
+
+.word-count{
+  font-family:var(--mono);
+  font-size:12px;color:var(--mid);
+}
+
+.eh-actions{
+  display:flex;align-items:center;
+  gap:12px;
+}
+
+.btn-download{
+  padding:10px 20px;
+  background:transparent;
+  border:1px solid var(--slate);
+  color:var(--off);
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.btn-download:hover:not(:disabled){
+  border-color:var(--white);
+  color:var(--white);
+}
+.btn-download:disabled{
+  opacity:.3;cursor:not-allowed;
+}
+
+.btn-editor-close{
+  background:transparent;
+  border:none;color:var(--mid);
+  font-size:24px;cursor:pointer;
+  width:36px;height:36px;
+  display:flex;align-items:center;
+  justify-content:center;
+  transition:color .2s;
+}
+.btn-editor-close:hover{color:var(--white)}
+
+.editor-body{
+  flex:1;overflow:hidden;
+  display:flex;align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+}
+
+.editor-wrapper{
+  width:100%;max-width:800px;
+  height:100%;
+}
+
+.editor-textarea{
+  width:100%;height:100%;
+  background:transparent;
+  border:none;outline:none;
+  color:var(--white);
+  font-family:var(--sans);
+  font-size:20px;line-height:1.8;
+  resize:none;overflow-y:auto;
+}
+
+.editor-textarea:empty::before{
+  content:attr(placeholder);
+  color:var(--mid);
+  font-style:italic;
+}
+
+.editor-textarea .char{
+  transition:opacity 0.5s ease;
+}
+
+.editor-textarea .char.fading{
+  opacity:0;
+}
+
+.editor-footer{
+  padding:16px 24px;
+  border-top:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;
+  min-height:60px;
+  display:flex;align-items:center;
+  justify-content:center;
+}
+
+.warning-message{
+  display:flex;align-items:center;
+  gap:10px;padding:8px 18px;
+  background:var(--red-dim);
+  border:1px solid rgba(255,68,68,.2);
+  border-radius:20px;
+  opacity:0;transition:opacity .3s;
+}
+.warning-message.show{opacity:1}
+
+.warning-icon{
+  font-size:16px;
+  animation:pulse 1s ease infinite;
+}
+
+.warning-text{
+  font-family:var(--mono);
+  font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--red);
+  font-weight:500;
+}
+
+@keyframes green{background:#16a34a}
+
+</style>
 </head>
 <body>
-    <!-- SETTINGS SCREEN -->
-    <div id="settings-screen">
-        <div class="settings-logo">TYPPE</div>
-        <div class="settings-title">How long do you want to write?</div>
-        <div class="time-options">
-            <button class="time-btn" onclick="startSession(2)">2 min</button>
-            <button class="time-btn" onclick="startSession(5)">5 min</button>
-            <button class="time-btn" onclick="startSession(10)">10 min</button>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">typ<span class="fade-p">p</span>e</a>
+    <ul class="nav-links">
+      <li><a href="#uses">Use Cases</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><button class="nav-btn">TRY IT FREE</button></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">FINALLY WRITE IT</div>
+
+  <h1 class="hero-title">STOP PUTTING OFF<br>THAT THING YOU<br>NEED TO <span class="red">WRITE</span></h1>
+
+  <p class="hero-sub">The email you've been avoiding. The essay you haven't started. The journal entry you keep meaning to write. typpe forces you to write it by deleting your text if you stop.</p>
+
+  <div class="hero-btns">
+    <button class="btn-primary">START WRITING NOW</button>
+    <a href="#demo" class="btn-secondary">See How It Works ↓</a>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="live-demo" id="demo">
+    <div class="ld-header">
+      <div class="ld-title">LIVE DEMO — WATCH IT DELETE</div>
+      <div class="ld-live">
+        <div class="ld-live-dot"></div>
+        <div class="ld-live-text">Live</div>
+      </div>
+    </div>
+    <div class="ld-body">
+      <div id="demo-content">
+        <div class="demo-instruction">Demo starting...</div>
+      </div>
+      <div class="demo-warning" id="demo-warning">⚠ TEXT WILL DELETE IF YOU STOP</div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="uses-sec" id="uses">
+  <div class="sec-header rev">
+    <div class="eyebrow">USE CASES</div>
+    <h2 class="sec-title">PROCRASTINATING ON<br>SOMETHING?</h2>
+    <p class="sec-body">typpe works for anything you need to write but keep putting off.</p>
+  </div>
+
+  <div class="uses-grid rev">
+    <div class="use-card">
+      <div class="uc-icon">📧</div>
+      <h3 class="uc-title">DIFFICULT EMAILS</h3>
+      <p class="uc-body">Reply to your boss. Decline that invitation. Send the breakup text. Write what you've been avoiding.</p>
+    </div>
+
+    <div class="use-card">
+      <div class="uc-icon">📝</div>
+      <h3 class="uc-title">ESSAYS & ASSIGNMENTS</h3>
+      <p class="uc-body">Staring at a blank page for your dissertation? typpe forces you past the first sentence.</p>
+    </div>
+
+    <div class="use-card">
+      <div class="uc-icon">📔</div>
+      <h3 class="uc-title">JOURNAL ENTRIES</h3>
+      <p class="uc-body">Promised yourself you'd journal? Can't get started? typpe makes you write that first line.</p>
+    </div>
+
+    <div class="use-card">
+      <div class="uc-icon">💬</div>
+      <h3 class="uc-title">DIFFICULT CONVERSATIONS</h3>
+      <p class="uc-body">Resignation letter. Apology message. Uncomfortable text. Get it written before you overthink it.</p>
+    </div>
+
+    <div class="use-card">
+      <div class="uc-icon">📄</div>
+      <h3 class="uc-title">REPORTS & DOCS</h3>
+      <p class="uc-body">Work report due. Cover letter needed. Anything with a deadline you're avoiding.</p>
+    </div>
+
+    <div class="use-card">
+      <div class="uc-icon">✍️</div>
+      <h3 class="uc-title">CREATIVE WRITING</h3>
+      <p class="uc-body">Blog post. Short story. Anything where you keep opening the doc and closing it again.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-sec" id="how">
+  <div class="sec-header rev">
+    <div class="eyebrow">HOW IT WORKS</div>
+    <h2 class="sec-title">SIMPLE. BRUTAL.<br>EFFECTIVE.</h2>
+    <p class="sec-body">typpe uses urgency and consequence to break through procrastination.</p>
+  </div>
+
+  <div class="how-steps rev">
+    <div class="how-step">
+      <div class="hs-num">1</div>
+      <h3 class="hs-title">START TYPING</h3>
+      <p class="hs-body">Open typpe. Start writing whatever you've been avoiding. Email, essay, journal entry — anything.</p>
+    </div>
+
+    <div class="how-step">
+      <div class="hs-num">2</div>
+      <h3 class="hs-title">KEEP GOING</h3>
+      <p class="hs-body">If you stop typing for more than 5 seconds, your text starts to fade. Keep writing or it disappears.</p>
+    </div>
+
+    <div class="how-step">
+      <div class="hs-num">3</div>
+      <h3 class="hs-title">GET IT DONE</h3>
+      <p class="hs-body">The threat of losing your work forces you to finish. Download when done. No more procrastinating.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="test-sec" id="reviews">
+  <div class="sec-header rev">
+    <div class="eyebrow">TESTIMONIALS</div>
+    <h2 class="sec-title">REAL PEOPLE.<br>REAL RESULTS.</h2>
+    <p class="sec-body">Thousands have used typpe to finally write that thing they were avoiding.</p>
+  </div>
+
+  <div class="test-grid rev">
+    <div class="test-card">
+      <div class="tc-quote">I'd been putting off replying to my boss's email for 3 days. Used typpe, forced myself to just start typing, and had it done in 8 minutes. The fear of deletion actually works.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">M</div>
+        <div>
+          <div class="tc-name">MARCUS</div>
+          <div class="tc-context">Marketing Manager</div>
         </div>
+      </div>
     </div>
 
-    <!-- EDITOR SCREEN -->
-    <div id="editor-screen" class="hidden">
-        <div class="timer" id="timer">5:00</div>
-        <textarea class="editor" id="editor" placeholder="Start typing..." autofocus></textarea>
-    </div>
-
-    <!-- COMPLETION SCREEN -->
-    <div id="complete-screen">
-        <div class="message">Session complete</div>
-        <div class="actions">
-            <button class="btn" id="downloadBtn">Download (.txt)</button>
-            <a href="https://www.wealthyaffiliate.com?a_aid=9426920e" target="_blank" class="btn affiliate">Get Paid to Write</a>
+    <div class="test-card">
+      <div class="tc-quote">My dissertation was due in a week and I hadn't written the introduction. Sat down with typpe and wrote 2000 words in one session because I literally couldn't stop. Game changer.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">S</div>
+        <div>
+          <div class="tc-name">SARAH</div>
+          <div class="tc-context">University Student</div>
         </div>
+      </div>
     </div>
 
-    <!-- BLOG LINK (visible on both screens) -->
-    <div class="blog-link">
-        <a href="https://rossleese.com" target="_blank" class="blog-btn">blog</a>
+    <div class="test-card">
+      <div class="tc-quote">I've tried journaling apps, accountability apps, everything. typpe is the only thing that actually makes me write. The deletion mechanic is weirdly motivating.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">J</div>
+        <div>
+          <div class="tc-name">JAMES</div>
+          <div class="tc-context">Software Engineer</div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        const settingsScreen = document.getElementById('settings-screen');
-        const editorScreen = document.getElementById('editor-screen');
-        const completeScreen = document.getElementById('complete-screen');
-        const editor = document.getElementById('editor');
-        const timerDisplay = document.getElementById('timer');
-        const downloadBtn = document.getElementById('downloadBtn');
+    <div class="test-card">
+      <div class="tc-quote">Needed to write a resignation letter and kept chickening out. typpe forced me to just get it down on the page. Sent it that day. Genuinely helpful.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">L</div>
+        <div>
+          <div class="tc-name">LENA</div>
+          <div class="tc-context">Teacher</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <div class="tc-quote">I thought it was gimmicky but it actually works. The pressure makes you push through the overthinking and just write. Finished my cover letter in one go.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">D</div>
+        <div>
+          <div class="tc-name">DAVID</div>
+          <div class="tc-context">Job Seeker</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-card">
+      <div class="tc-quote">Promised myself I'd start journaling as a New Year's resolution. Made it to February without writing anything. typpe got me over the "first entry" hump in 10 minutes.</div>
+      <div class="tc-author">
+        <div class="tc-avatar">A</div>
+        <div>
+          <div class="tc-name">AMY</div>
+          <div class="tc-context">Designer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="sec-header rev">
+    <div class="eyebrow">STOP PROCRASTINATING</div>
+    <h2 class="sec-title" style="font-size:clamp(44px,8vw,80px);margin-bottom:20px">
+      WRITE IT.<br>RIGHT NOW.
+    </h2>
+    <p class="sec-body" style="max-width:560px;margin:0 auto 36px">
+      Stop putting it off. Open typpe. Start typing. Get it done before you lose it.
+    </p>
+  </div>
+  <button class="btn-primary rev" style="font-size:22px;padding:20px 56px">START WRITING</button>
+  <p class="cta-small rev">FREE · NO SIGNUP · WORKS IN YOUR BROWSER</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <h4>TYP<span style="opacity:.25">P</span>E</h4>
+      <ul>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Use Cases</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>LEGAL</h4>
+      <ul>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2025 typ<span style="opacity:.25">p</span>e · Write it or lose it
+  </div>
+</footer>
+
+<!-- APP LAYER -->
+<div id="app-layer">
+  <!-- SETTINGS SCREEN -->
+  <div id="scr-settings" class="scr on">
+    <div class="settings-panel">
+      <div class="sp-header">
+        <div class="sp-logo">typ<span style="opacity:.25">p</span>e</div>
+        <button class="btn-close" onclick="closeApp()">✕</button>
+      </div>
+      
+      <div class="sp-body">
+        <h2 class="sp-title">CONFIGURE YOUR SESSION</h2>
+        <p class="sp-sub">Choose how aggressive you want the deletion to be.</p>
         
-        let warningTimeout;
-        let deleteTimeout;
-        let sessionTime = 300; // Will be set by user choice
-        let timeRemaining = sessionTime;
-        let timerInterval;
-        let hasTyped = false;
-        let savedText = '';
+        <div class="setting-group">
+          <label class="setting-label">IDLE TIME BEFORE FADING STARTS</label>
+          <div class="setting-options">
+            <button class="setting-btn" data-fade="3" onclick="selectFade(3)">3 SEC</button>
+            <button class="setting-btn active" data-fade="5" onclick="selectFade(5)">5 SEC</button>
+            <button class="setting-btn" data-fade="10" onclick="selectFade(10)">10 SEC</button>
+          </div>
+          <div class="setting-help">How long you can pause before text starts fading</div>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">TIME UNTIL COMPLETE DELETION</label>
+          <div class="setting-options">
+            <button class="setting-btn" data-delete="5" onclick="selectDelete(5)">5 SEC</button>
+            <button class="setting-btn active" data-delete="10" onclick="selectDelete(10)">10 SEC</button>
+            <button class="setting-btn" data-delete="15" onclick="selectDelete(15)">15 SEC</button>
+          </div>
+          <div class="setting-help">How long until faded text deletes permanently</div>
+        </div>
+        
+        <button class="btn-start-writing" onclick="startWriting()">START WRITING →</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- EDITOR SCREEN -->
+  <div id="scr-editor" class="scr">
+    <div class="editor-container">
+      <div class="editor-header">
+        <div class="eh-logo">typ<span style="opacity:.25">p</span>e</div>
+        <div class="eh-status">
+          <div class="status-indicator" id="status-indicator">
+            <div class="si-dot"></div>
+            <div class="si-text" id="status-text">ACTIVE</div>
+          </div>
+          <div class="word-count" id="word-count">0 words</div>
+        </div>
+        <div class="eh-actions">
+          <button class="btn-download" onclick="downloadText()" id="btn-download" disabled>DOWNLOAD</button>
+          <button class="btn-editor-close" onclick="closeEditor()">✕</button>
+        </div>
+      </div>
+      
+      <div class="editor-body">
+        <div class="editor-wrapper">
+          <div class="editor-textarea" 
+               id="editor" 
+               contenteditable="true" 
+               spellcheck="false"
+               placeholder="Start typing... don't stop or your text will fade and delete."></div>
+        </div>
+      </div>
+      
+      <div class="editor-footer">
+        <div class="warning-message" id="warning-message">
+          <span class="warning-icon">⚠</span>
+          <span class="warning-text">TEXT FADING — KEEP TYPING</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Start session with chosen length
-        function startSession(minutes) {
-            sessionTime = minutes * 60;
-            timeRemaining = sessionTime;
-            
-            // Update timer display
-            timerDisplay.textContent = `${minutes}:00`;
-            
-            // Hide settings, show editor
-            settingsScreen.classList.add('hidden');
-            editorScreen.classList.remove('hidden');
-            
-            // Focus editor
-            setTimeout(() => editor.focus(), 100);
+<script>
+// Scroll reveal
+const ro=new IntersectionObserver(e=>e.forEach(i=>{
+  if(i.isIntersecting){i.target.classList.add('vis');ro.unobserve(i.target)}
+}),{threshold:.1});
+document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+
+// LIVE DEMO - Letter by letter deletion
+const DEMO_TEXTS = [
+  "Dear Sarah, I've been thinking about how to say this",
+  "Chapter 1: The problem with most productivity apps is",
+  "Today was harder than I thought it would be",
+  "I'm writing to formally submit my resignation",
+];
+
+let demoIndex = 0;
+
+function startDemo(){
+  const warning = document.getElementById('demo-warning');
+  const content = document.getElementById('demo-content');
+  
+  const currentText = DEMO_TEXTS[demoIndex];
+  
+  content.innerHTML = '<div class="demo-text" id="demo-text"></div>';
+  warning.classList.add('show');
+  
+  typeText(currentText, () => {
+    setTimeout(() => deleteLetters(), 2000);
+  });
+}
+
+function typeText(text, callback){
+  const textEl = document.getElementById('demo-text');
+  if(!textEl) return;
+  
+  let index = 0;
+  
+  function type(){
+    if(index < text.length){
+      textEl.innerHTML = text.substring(0, index + 1) + '<span class="cursor"></span>';
+      index++;
+      const delay = 80 + Math.random() * 80;
+      setTimeout(type, delay);
+    } else {
+      textEl.innerHTML = text + '<span class="cursor"></span>';
+      if(callback) setTimeout(callback, 0);
+    }
+  }
+  
+  type();
+}
+
+function deleteLetters(){
+  const textEl = document.getElementById('demo-text');
+  if(!textEl) return;
+  
+  const currentText = DEMO_TEXTS[demoIndex];
+  textEl.innerHTML = currentText;
+  
+  const chars = currentText.split('');
+  textEl.innerHTML = chars.map((char, i) => 
+    `<span id="char-${i}">${char === ' ' ? '&nbsp;' : char}</span>`
+  ).join('');
+  
+  const indices = chars.map((_, i) => i);
+  for(let i = indices.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  
+  let deleteCount = 0;
+  const totalChars = chars.length;
+  
+  function deleteNext(){
+    if(deleteCount >= totalChars){
+      setTimeout(() => {
+        demoIndex = (demoIndex + 1) % DEMO_TEXTS.length;
+        setTimeout(startDemo, 500);
+      }, 500);
+      return;
+    }
+    
+    const charIndex = indices[deleteCount];
+    const charEl = document.getElementById(`char-${charIndex}`);
+    
+    if(charEl){
+      charEl.classList.add('fading-letter');
+    }
+    
+    deleteCount++;
+    const baseDelay = 120;
+    const speedUp = Math.max(20, baseDelay - (deleteCount * 2));
+    setTimeout(deleteNext, speedUp);
+  }
+  
+  deleteNext();
+}
+
+const demoObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      setTimeout(startDemo, 500);
+      demoObserver.unobserve(entry.target);
+    }
+  });
+}, {threshold:.3});
+
+demoObserver.observe(document.getElementById('demo'));
+
+// ========== APP FUNCTIONALITY ==========
+
+let settings = {
+  fadeTime: 5,
+  deleteTime: 10
+};
+
+let lastKeystroke = Date.now();
+let fadeTimeout = null;
+let deleteTimeout = null;
+let isFading = false;
+let fadingChars = [];
+
+// Open app
+document.querySelectorAll('.btn-primary, .nav-btn').forEach(btn => {
+  btn.addEventListener('click', openApp);
+});
+
+function openApp(){
+  document.getElementById('app-layer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeApp(){
+  document.getElementById('app-layer').classList.remove('open');
+  document.body.style.overflow = '';
+  resetEditor();
+}
+
+// Settings screen
+function selectFade(seconds){
+  settings.fadeTime = seconds;
+  document.querySelectorAll('[data-fade]').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-fade="${seconds}"]`).classList.add('active');
+}
+
+function selectDelete(seconds){
+  settings.deleteTime = seconds;
+  document.querySelectorAll('[data-delete]').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-delete="${seconds}"]`).classList.add('active');
+}
+
+function startWriting(){
+  document.getElementById('scr-settings').classList.remove('on');
+  document.getElementById('scr-editor').classList.add('on');
+  
+  const editor = document.getElementById('editor');
+  editor.focus();
+  
+  // Request full-screen
+  const appLayer = document.getElementById('app-layer');
+  if(appLayer.requestFullscreen){
+    appLayer.requestFullscreen();
+  } else if(appLayer.webkitRequestFullscreen){
+    appLayer.webkitRequestFullscreen();
+  } else if(appLayer.msRequestFullscreen){
+    appLayer.msRequestFullscreen();
+  }
+  
+  startMonitoring();
+}
+
+// Editor functionality
+function startMonitoring(){
+  const editor = document.getElementById('editor');
+  
+  editor.addEventListener('input', handleInput);
+  editor.addEventListener('keydown', handleKeydown);
+  
+  checkIdle();
+}
+
+function handleInput(e){
+  lastKeystroke = Date.now();
+  
+  const editor = document.getElementById('editor');
+  
+  // If we're fading, user has started typing again
+  if(isFading){
+    isFading = false;
+    
+    // Save cursor position before unwrapping
+    const selection = window.getSelection();
+    let savedCaretPos = 0;
+    if(selection.rangeCount > 0){
+      const range = selection.getRangeAt(0);
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(editor);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      savedCaretPos = preCaretRange.toString().length;
+    }
+    
+    // Get the plain text
+    const plainText = editor.textContent;
+    
+    // Replace with plain text
+    editor.textContent = plainText;
+    
+    // Restore cursor
+    const textNode = editor.firstChild;
+    if(textNode && textNode.nodeType === Node.TEXT_NODE){
+      try{
+        const newRange = document.createRange();
+        const offset = Math.min(savedCaretPos, textNode.length);
+        newRange.setStart(textNode, offset);
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      } catch(e){
+        editor.focus();
+      }
+    }
+    
+    updateStatus('active');
+    hideWarning();
+  }
+  
+  updateWordCount();
+}
+
+function handleKeydown(e){
+  lastKeystroke = Date.now();
+}
+
+function checkIdle(){
+  const now = Date.now();
+  const timeSinceLastKey = (now - lastKeystroke) / 1000;
+  
+  const editor = document.getElementById('editor');
+  const hasText = editor && editor.textContent && editor.textContent.trim().length > 0;
+  
+  if(timeSinceLastKey >= settings.fadeTime && !isFading && hasText){
+    startFading();
+  }
+  
+  requestAnimationFrame(checkIdle);
+}
+
+function startFading(){
+  const editor = document.getElementById('editor');
+  const text = editor.textContent;
+  
+  if(!text || text.trim().length === 0) return;
+  
+  isFading = true;
+  updateStatus('warning');
+  showWarning();
+  
+  // Save the current cursor position relative to text content
+  const selection = window.getSelection();
+  let savedCaretPos = 0;
+  if(selection.rangeCount > 0){
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(editor);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    savedCaretPos = preCaretRange.toString().length;
+  }
+  
+  // Wrap each character, preserving newlines
+  const chars = text.split('');
+  const wrappedHTML = chars.map((char, i) => {
+    if(char === '\n'){
+      return '<br class="char" data-idx="' + i + '">';
+    } else if(char === ' '){
+      return '<span class="char" data-idx="' + i + '">&nbsp;</span>';
+    } else {
+      return '<span class="char" data-idx="' + i + '">' + char + '</span>';
+    }
+  }).join('');
+  
+  editor.innerHTML = wrappedHTML;
+  
+  // Restore cursor position by counting through text nodes
+  const restoreCaret = () => {
+    let charCount = 0;
+    let targetNode = null;
+    let targetOffset = 0;
+    
+    const walk = document.createTreeWalker(
+      editor,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    let node;
+    while(node = walk.nextNode()){
+      const nodeLength = node.textContent.length;
+      if(charCount + nodeLength >= savedCaretPos){
+        targetNode = node;
+        targetOffset = savedCaretPos - charCount;
+        break;
+      }
+      charCount += nodeLength;
+    }
+    
+    if(targetNode){
+      try{
+        const newRange = document.createRange();
+        newRange.setStart(targetNode, Math.min(targetOffset, targetNode.length));
+        newRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(newRange);
+      } catch(e){
+        // If cursor restoration fails, just focus the editor
+        editor.focus();
+      }
+    }
+  };
+  
+  // Restore cursor after a tiny delay to let DOM settle
+  setTimeout(restoreCaret, 0);
+  
+  // Now start fading characters randomly
+  const charSpans = Array.from(editor.querySelectorAll('.char'));
+  const indices = charSpans.map((_, i) => i);
+  
+  // Shuffle
+  for(let i = indices.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  
+  const deleteTimeMs = settings.deleteTime * 1000;
+  const delayPerChar = deleteTimeMs / charSpans.length;
+  
+  indices.forEach((charIndex, i) => {
+    setTimeout(() => {
+      if(!isFading) return;
+      
+      const char = charSpans[charIndex];
+      if(char){
+        char.classList.add('fading');
+      }
+      
+      // After last character starts fading
+      if(i === indices.length - 1){
+        setTimeout(() => {
+          if(!isFading) return;
+          
+          editor.innerHTML = '';
+          updateStatus('active');
+          hideWarning();
+          isFading = false;
+          updateWordCount();
+        }, 1000);
+      }
+    }, i * delayPerChar);
+  });
+}
+
+function updateStatus(status){
+  const indicator = document.getElementById('status-indicator');
+  const dot = indicator.querySelector('.si-dot');
+  const text = document.getElementById('status-text');
+  
+  if(status === 'warning'){
+    dot.classList.add('warning');
+    text.textContent = 'FADING';
+    text.style.color = 'var(--red)';
+  } else {
+    dot.classList.remove('warning');
+    text.textContent = 'ACTIVE';
+    text.style.color = 'var(--off)';
+  }
+}
+
+function showWarning(){
+  document.getElementById('warning-message').classList.add('show');
+}
+
+function hideWarning(){
+  document.getElementById('warning-message').classList.remove('show');
+}
+
+function updateWordCount(){
+  const editor = document.getElementById('editor');
+  const text = editor.textContent || '';
+  const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+  
+  document.getElementById('word-count').textContent = words + ' word' + (words === 1 ? '' : 's');
+  
+  // Enable download if there's text
+  document.getElementById('btn-download').disabled = words === 0;
+}
+
+function downloadText(){
+  const editor = document.getElementById('editor');
+  const text = editor.textContent || '';
+  
+  if(!text.trim()) return;
+  
+  const blob = new Blob([text], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'typpe-' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function closeEditor(){
+  const editor = document.getElementById('editor');
+  const wordCount = (editor.textContent || '').trim().split(/\s+/).filter(w => w.length > 0).length;
+  
+  let confirmMessage = 'Close editor?';
+  if(wordCount > 0){
+    confirmMessage = `You've written ${wordCount} words. Close anyway? Your work will be lost.`;
+  }
+  
+  if(confirm(confirmMessage)){
+    // Exit full-screen if active
+    if(document.fullscreenElement || document.webkitFullscreenElement){
+      if(document.exitFullscreen){
+        document.exitFullscreen();
+      } else if(document.webkitExitFullscreen){
+        document.webkitExitFullscreen();
+      }
+    }
+    
+    resetEditor();
+    document.getElementById('scr-editor').classList.remove('on');
+    document.getElementById('scr-settings').classList.add('on');
+  }
+}
+
+// Listen for ESC key or full-screen exit
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+function handleFullscreenChange(){
+  // If user exits full-screen while in editor, warn them
+  if(!document.fullscreenElement && !document.webkitFullscreenElement){
+    const editorScreen = document.getElementById('scr-editor');
+    if(editorScreen.classList.contains('on')){
+      const editor = document.getElementById('editor');
+      const wordCount = (editor.textContent || '').trim().split(/\s+/).filter(w => w.length > 0).length;
+      
+      if(wordCount > 0){
+        if(!confirm(`You've written ${wordCount} words. Exiting full-screen will close the editor. Continue?`)){
+          // Re-enter full-screen
+          const appLayer = document.getElementById('app-layer');
+          if(appLayer.requestFullscreen){
+            appLayer.requestFullscreen();
+          } else if(appLayer.webkitRequestFullscreen){
+            appLayer.webkitRequestFullscreen();
+          }
+        } else {
+          // User wants to exit
+          resetEditor();
+          editorScreen.classList.remove('on');
+          document.getElementById('scr-settings').classList.add('on');
         }
+      }
+    }
+  }
+}
 
-        // Start session timer
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
-                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                // Warning color in last minute
-                if (timeRemaining <= 60) {
-                    timerDisplay.classList.add('warning');
-                }
-                
-                // Session ended
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    sessionComplete();
-                }
-            }, 1000);
-        }
-
-        function sessionComplete() {
-            savedText = editor.value;
-            editorScreen.classList.add('hidden');
-            completeScreen.classList.add('visible');
-            
-            // Disable download if no text
-            if (!savedText || !savedText.trim()) {
-                downloadBtn.disabled = true;
-                downloadBtn.style.opacity = '0.3';
-                downloadBtn.style.cursor = 'not-allowed';
-            }
-        }
-
-        editor.addEventListener('input', handleKeystroke);
-        editor.addEventListener('keydown', handleKeystroke);
-
-        function handleKeystroke() {
-            if (!hasTyped) {
-                hasTyped = true;
-                startTimer();
-            }
-            
-            clearTimeout(warningTimeout);
-            clearTimeout(deleteTimeout);
-            
-            editor.classList.remove('fading');
-            
-            // Fade warning after 3 seconds of inactivity
-            warningTimeout = setTimeout(() => {
-                editor.classList.add('fading');
-            }, 3000);
-            
-            // Delete everything after 10 seconds of inactivity
-            deleteTimeout = setTimeout(() => {
-                editor.value = '';
-                editor.classList.remove('fading');
-            }, 10000);
-        }
-
-        // Download functionality
-        downloadBtn.addEventListener('click', () => {
-            if (!savedText || !savedText.trim()) return;
-            
-            const blob = new Blob([savedText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'typpe-' + Date.now() + '.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    </script>
+function resetEditor(){
+  const editor = document.getElementById('editor');
+  editor.innerHTML = '';
+  
+  lastKeystroke = Date.now();
+  if(fadeTimeout) clearTimeout(fadeTimeout);
+  if(deleteTimeout) clearTimeout(deleteTimeout);
+  isFading = false;
+  fadingChars = [];
+  
+  updateStatus('active');
+  hideWarning();
+  updateWordCount();
+}
+</script>
 </body>
 </html>
